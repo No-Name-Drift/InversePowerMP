@@ -99,6 +99,11 @@ namespace InversePowerMP
             {
                 LocalPlayer.Character.CurrentVehicle.EngineTorqueMultiplier = (float)TorqueMultiplier;
                 LocalPlayer.Character.CurrentVehicle.EnginePowerMultiplier = (float)PowerMultiplier;
+
+                // Show a message on the F8 console on debug builds
+                #if DEBUG
+                    Debug.WriteLine(string.Format("Speed: {0}, PowerMult {1}, TorqueMult {2}, Angle {3}", Speed, PowerMultiplier, TorqueMultiplier, Angle));
+                #endif
             }
             else
             {
