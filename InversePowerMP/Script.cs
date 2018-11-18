@@ -1,6 +1,7 @@
 ﻿using CitizenFX.Core;
 using CitizenFX.Core.Native;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace InversePowerMP
@@ -16,13 +17,34 @@ namespace InversePowerMP
         private readonly float Base = API.GetConvarInt("ip_slope", 35) / 1f;
         private readonly float Deadzone = API.GetConvarInt("ip_deadzone", 0) / 1.0f;
 
+        private bool Enabled = API.GetConvarInt("ip_enabled", 0) != 0;
+
         public InversePower()
         {
             Tick += OnTick;
+
+            API.RegisterCommand("ip", new Action<int, List<object>, string>(OnCommand), false);
+            API.RegisterCommand("inversepower", new Action<int, List<object>, string>(OnCommand), false);
+
+            Debug.WriteLine("Inverse Power has been loaded, default state: " + Enabled);
+        }
+
+        public async void OnCommand(int Source, List<object> Args, string Raw)
+        {
+            // Invert the activation of the Script
+            // Pun intended
+            Enabled = !Enabled;
+            Debug.WriteLine("The Activation status of Inverse Power has changed: " + Enabled);
         }
 
         private async Task OnTick()
         {
+            // If the mod is disabled by the player, return
+            if (!Enabled)
+            {
+                return;
+            }
+
             // If the player does not exists, cannot be controlled or is dead, return
             if (!LocalPlayer.Character.Exists() || !LocalPlayer.CanControlCharacter || LocalPlayer.IsDead)
             {
