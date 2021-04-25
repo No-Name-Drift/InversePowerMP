@@ -8,23 +8,23 @@ namespace InversePowerMP
 {
     public class InversePower : BaseScript
     {
-        private readonly float Power = API.GetConvarInt("ip_power", 100) / 100f;
-        private readonly float Torque = API.GetConvarInt("ip_torque", 80) / 100f;
+        private readonly float Power = API.GetConvarInt("ip_power", 70) / 100f;
+        private readonly float Torque = API.GetConvarInt("ip_torque", 50) / 100f;
 
-        private readonly float Angle = API.GetConvarInt("ip_angle", 350) / 100f;
+        private readonly float Angle = API.GetConvarInt("ip_angle", 260) / 100f;
         private readonly float Speed = API.GetConvarInt("ip_speed", 200) / 100f;
 
-        private readonly float Base = API.GetConvarInt("ip_slope", 35) / 1f;
-        private readonly float Deadzone = API.GetConvarInt("ip_deadzone", 0) / 1.0f;
+        private readonly float Base = API.GetConvarInt("ip_slope", 35) / 100f;
+        private readonly float Deadzone = API.GetConvarInt("ip_deadzone", 0) / 0.0f;
 
-        private bool Enabled = API.GetConvarInt("ip_enabled", 0) != 0;
+        private bool Enabled = API.GetConvarInt("ip_enabled", 1) != 0;
 
         public InversePower()
         {
             Tick += OnTick;
 
-            API.RegisterCommand("ip", new Action<int, List<object>, string>(OnCommand), false);
-            API.RegisterCommand("inversepower", new Action<int, List<object>, string>(OnCommand), false);
+            //API.RegisterCommand("ip", new Action<int, List<object>, string>(OnCommand), false);
+            //API.RegisterCommand("inversepower", new Action<int, List<object>, string>(OnCommand), false);
 
             Debug.WriteLine("Inverse Power has been loaded, default state: " + Enabled);
         }
@@ -59,6 +59,12 @@ namespace InversePowerMP
 
             // If the player vehicle is not a car, return
             if (!LocalPlayer.Character.CurrentVehicle.Model.IsCar)
+            {
+                return;
+            }
+
+            // If the player vehicle is an AWD car, return
+            if (LocalPlayer.Character.CurrentVehicle.ClassDisplayName.Equals("Ford"))
             {
                 return;
             }
@@ -100,15 +106,19 @@ namespace InversePowerMP
                 LocalPlayer.Character.CurrentVehicle.EngineTorqueMultiplier = (float)TorqueMultiplier;
                 LocalPlayer.Character.CurrentVehicle.EnginePowerMultiplier = (float)PowerMultiplier;
 
+                TriggerEvent("Drifting", true);
+
                 // Show a message on the F8 console on debug builds
                 #if DEBUG
-                    Debug.WriteLine(string.Format("Speed: {0}, PowerMult {1}, TorqueMult {2}, Angle {3}", Speed, PowerMultiplier, TorqueMultiplier, Angle));
+                    //Debug.WriteLine(string.Format("Speed: {0}, PowerMult {1}, TorqueMult {2}, Angle {3}", Speed, PowerMultiplier, TorqueMultiplier, Angle));
                 #endif
             }
             else
             {
                 LocalPlayer.Character.CurrentVehicle.EngineTorqueMultiplier = 1f;
                 LocalPlayer.Character.CurrentVehicle.EnginePowerMultiplier = 1f;
+
+                TriggerEvent("Drifting", false);
             }
         }
     }
